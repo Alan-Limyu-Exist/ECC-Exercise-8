@@ -8,10 +8,8 @@ public class ContactInformation {
 
     private String landline;
 
-    @NotEmpty
     private String mobileNumber;
 
-    @NotEmpty
     private String email;
 
     public String getLandline() {

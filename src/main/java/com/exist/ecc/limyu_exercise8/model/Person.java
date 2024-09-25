@@ -1,6 +1,7 @@
 package com.exist.ecc.limyu_exercise8.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class Person {
     private long id;
 
     @NotNull
+    @Valid
     @Embedded
     private Name name;
 
@@ -29,11 +31,10 @@ public class Person {
     @NotNull
     private boolean currentlyEmployed;
 
-    @NotNull
     @Embedded
     private ContactInformation contactInformation;
 
-    @OneToMany
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
     public long getId() {

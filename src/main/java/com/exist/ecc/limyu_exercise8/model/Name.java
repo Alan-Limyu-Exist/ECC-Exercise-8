@@ -2,14 +2,17 @@ package com.exist.ecc.limyu_exercise8.model;
 
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public class Name {
 
-    @NotEmpty
+    @NotNull(message = "First Name cannot be null")
+    @NotEmpty(message = "First Name cannot be empty")
     private String firstName;
 
-    @NotEmpty
+    @NotNull(message = "Last Name cannot be null")
+    @NotEmpty(message = "Last Name cannot be empty")
     private String lastName;
 
     private String middleName;
