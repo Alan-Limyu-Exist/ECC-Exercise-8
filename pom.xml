@@ -11,8 +11,16 @@
 	<groupId>com.exist.ecc</groupId>
 	<artifactId>limyu-exercise8</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>limyu-exercise8</name>
 	<description>Limyu Exercise 8</description>
+
+	<modules>
+		<module>core</module>
+		<module>infra</module>
+		<module>app</module>
+	</modules>
+
 	<url/>
 	<licenses>
 		<license/>
