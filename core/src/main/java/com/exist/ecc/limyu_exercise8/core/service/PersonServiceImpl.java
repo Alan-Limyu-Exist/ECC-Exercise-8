@@ -94,4 +94,19 @@ public class PersonServiceImpl implements PersonService {
                 .sorted(Comparator.comparing(Person::getGwa))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Person> getAllPeopleByDateHired() {
+        return personRepository.findAll().stream()
+                .sorted(Comparator.comparing(Person::getDateHired,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Person> getAllPeopleByLastName() {
+        return personRepository.findAll().stream()
+                .sorted(Comparator.comparing(person -> person.getName().getLastName()))
+                .collect(Collectors.toList());
+    }
 }

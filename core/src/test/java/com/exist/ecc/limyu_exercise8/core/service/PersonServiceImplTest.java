@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,7 @@ public class PersonServiceImplTest {
         this.person.setAddress(address);
 
         this.person.setGwa(1.0f);
+        this.person.setDateHired(LocalDateTime.parse("2022-01-01T00:00:00"));
         this.person.setCurrentlyEmployed(false);
 
         this.role.setId(1);
@@ -92,6 +94,7 @@ public class PersonServiceImplTest {
         newName1.setLastName("Cassano");
         newPerson1.setName(newName1);
         newPerson1.setGwa(2.0f);
+        newPerson1.setDateHired(LocalDateTime.parse("2022-01-01T00:00:00"));
         newPerson1.setId(2);
         peopleList.add(newPerson1);
 
@@ -101,6 +104,7 @@ public class PersonServiceImplTest {
         newName2.setLastName("Baek");
         newPerson2.setName(newName2);
         newPerson2.setGwa(3.0f);
+        newPerson1.setDateHired(LocalDateTime.parse("2022-01-01T00:00:01"));
         newPerson2.setId(2);
         peopleList.add(newPerson2);
 
@@ -110,6 +114,7 @@ public class PersonServiceImplTest {
         newName3.setLastName("Gu");
         newPerson3.setName(newName3);
         newPerson3.setGwa(4.0f);
+        newPerson1.setDateHired(LocalDateTime.parse("2024-01-01T00:00:00"));
         newPerson3.setId(2);
         peopleList.add(newPerson3);
 
@@ -190,4 +195,32 @@ public class PersonServiceImplTest {
             lastGwa = currentPerson.getGwa();
         }
     }
+
+    @Test
+    public void shouldListPeopleByDateHired() {
+        List<Person> peopleByDateHired = personServiceImpl.getAllPeopleByDateHired();
+
+        LocalDateTime lastDateHired = LocalDateTime.MIN;
+        for (Person currentPerson : peopleByDateHired) {
+            if(currentPerson.getDateHired() == null) {
+                continue;
+            }
+
+            assertTrue(currentPerson.getDateHired().isAfter(lastDateHired)
+                    || currentPerson.getDateHired().isEqual(lastDateHired));
+            lastDateHired = currentPerson.getDateHired();
+        }
+    }
+
+    @Test
+    public void shouldListPeopleByLastName() {
+        List<Person> peopleByLastName = personServiceImpl.getAllPeopleByLastName();
+
+        String lastLastName = "";
+        for (Person currentPerson : peopleByLastName) {
+            assertTrue(currentPerson.getName().getLastName().compareTo(lastLastName) >= 0);
+            lastLastName = currentPerson.getName().getLastName();
+        }
+    }
+
 }

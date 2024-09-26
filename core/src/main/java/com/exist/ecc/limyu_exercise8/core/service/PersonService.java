@@ -19,4 +19,8 @@ public interface PersonService {
     void deleteById(long id);
 
     List<Person> getAllPeopleByGwa();
+
+    List<Person> getAllPeopleByDateHired();
+
+    List<Person> getAllPeopleByLastName();
 }
