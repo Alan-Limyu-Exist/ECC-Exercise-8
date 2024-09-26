@@ -1,4 +1,4 @@
-package com.exist.ecc.limyu_exercise8.app.controller;
+package com.exist.ecc.limyu_exercise8.core.controller;
 
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.service.RoleService;

@@ -1,7 +1,6 @@
 package com.exist.ecc.limyu_exercise8.core.model;
 
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotEmpty;
 
 @Embeddable
 public class ContactInformation {
