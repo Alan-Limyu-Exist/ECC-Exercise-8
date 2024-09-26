@@ -16,5 +16,7 @@ public interface PersonService {
 
     Optional<Person> update(long id, Person person);
 
-    public void deleteById(long id);
+    void deleteById(long id);
+
+    List<Person> getAllPeopleByGwa();
 }

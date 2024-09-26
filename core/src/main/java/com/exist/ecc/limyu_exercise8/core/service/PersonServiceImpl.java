@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Validated
 @Service
@@ -63,7 +65,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Optional<Person> update(long id, Person person) {
-        Person updatedPerson = personRepository.findById(id).orElse(null);
+        Person updatedPerson = get(id);
 
         if (updatedPerson != null) {
             updatedPerson.setName(person.getName());
@@ -84,5 +86,12 @@ public class PersonServiceImpl implements PersonService {
         }
 
         return Optional.ofNullable(updatedPerson);
+    }
+
+    @Override
+    public List<Person> getAllPeopleByGwa() {
+        return personRepository.findAll().stream()
+                .sorted(Comparator.comparing(Person::getGwa))
+                .collect(Collectors.toList());
     }
 }
