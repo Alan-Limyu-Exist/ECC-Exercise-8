@@ -4,6 +4,7 @@ import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,13 +30,18 @@ public class RoleServiceImplTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @Spy
     private Role role;
 
     @BeforeEach
     public void setUp() {
         roleRepository = mock(RoleRepository.class);
-        roleServiceImpl = new RoleServiceImpl(roleRepository);
+        entityManager = mock(EntityManager.class);
+        roleServiceImpl = new RoleServiceImpl(roleRepository,
+                entityManager);
 
         role = new Role();
         role.setId(1L);
