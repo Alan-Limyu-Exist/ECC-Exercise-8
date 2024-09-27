@@ -119,6 +119,4 @@ public class RoleServiceImplTest {
         assertThrows(RoleNotFoundException.class,
                 () -> roleServiceImpl.deleteById(2L));
     }
-
-
 }

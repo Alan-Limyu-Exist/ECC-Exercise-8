@@ -1,6 +1,7 @@
 package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.PersonNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
@@ -47,7 +48,7 @@ public class PersonServiceImpl implements PersonService {
         Person person = personRepository.findById(id).orElse(null);
 
         if (person == null) {
-            throw new NullPointerException("Cannot find person to delete");
+            throw new PersonNotFoundException("Cannot find person");
         }
 
         return person;
@@ -66,7 +67,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Optional<Person> update(long id, Person person) {
+    public Person update(long id, Person person) {
         Person updatedPerson = get(id);
 
         if (updatedPerson != null) {
@@ -87,7 +88,7 @@ public class PersonServiceImpl implements PersonService {
             updatedPerson = personRepository.save(updatedPerson);
         }
 
-        return Optional.ofNullable(updatedPerson);
+        return updatedPerson;
     }
 
     @Override

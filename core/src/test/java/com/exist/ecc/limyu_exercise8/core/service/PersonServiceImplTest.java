@@ -2,6 +2,7 @@ package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.PersonNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Address;
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
@@ -152,7 +153,7 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldNotDeletePerson() {
-        assertThrows(NullPointerException.class,
+        assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl.delete(new Person()));
     }
 
@@ -164,7 +165,7 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldNotDeletePersonById() {
-        assertThrows(NullPointerException.class,
+        assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl.deleteById(4L));
     }
 
@@ -185,7 +186,7 @@ public class PersonServiceImplTest {
         newPerson.setRoles(Set.of(role));
 
         Person updatedPerson = personServiceImpl
-                .update(1, newPerson).orElse(null);
+                .update(1, newPerson);
         assertNotNull(updatedPerson);
         assertEquals(newPerson.getName().getFirstName(),
                 updatedPerson.getName().getFirstName());
@@ -198,7 +199,7 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldNotUpdatePerson() {
-        assertThrows(NullPointerException.class,
+        assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl.update(4L, person));
     }
 

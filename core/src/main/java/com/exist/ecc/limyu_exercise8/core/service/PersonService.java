@@ -6,7 +6,6 @@ import com.exist.ecc.limyu_exercise8.core.model.Role;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface PersonService {
@@ -16,7 +15,7 @@ public interface PersonService {
 
     void delete(Person person);
 
-    Optional<Person> update(long id, Person person);
+    Person update(long id, Person person);
 
     void deleteById(long id);
 
