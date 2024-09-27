@@ -8,4 +8,10 @@ public interface RoleService {
     List<Role> getAllRoles();
 
     Role save(Role person);
+
+    Role update(long id, Role role);
+
+    void delete(Role role);
+
+    void deleteById(long id);
 }
