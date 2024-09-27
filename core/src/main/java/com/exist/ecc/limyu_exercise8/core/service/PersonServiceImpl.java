@@ -1,6 +1,8 @@
 package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
+import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
 import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
@@ -108,5 +110,50 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findAll().stream()
                 .sorted(Comparator.comparing(person -> person.getName().getLastName()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Person addRole(Role role, Person person) {
+        Role roleInDatabase = roleRepository.findById(role.getId()).orElse(null);
+        if (roleInDatabase == null) {
+            throw new RoleNotFoundException("Role '" + role.getName() + "' does not exist in database");
+        }
+        person.getRoles().add(role);
+        return personRepository.save(person);
+    }
+
+    @Override
+    public Person deleteRole(Role role, Person person) {
+        if (!person.getRoles().contains(role)) {
+            throw new RoleNotFoundException("Person does not have role: " + role.getName());
+        }
+        person.getRoles().remove(role);
+        return personRepository.save(person);
+    }
+
+    @Override
+    public Person addContactInformation(ContactInformation contactInformation, Person person) {
+        person.setContactInformation(contactInformation);
+        return personRepository.save(person);
+    }
+
+    @Override
+    public Person updateContactInformation(ContactInformation contactInformation, Person person) {
+        if (person.getContactInformation() == null) {
+            throw new NullPointerException("Cannot update contact because contact is null");
+        }
+        person.getContactInformation().setLandline(contactInformation.getLandline());
+        person.getContactInformation().setMobileNumber(contactInformation.getMobileNumber());
+        person.getContactInformation().setEmail(contactInformation.getEmail());
+        return personRepository.save(person);
+    }
+
+    @Override
+    public Person deleteContactInformation(Person person) {
+        if (person.getContactInformation() == null) {
+            throw new NullPointerException("Cannot update contact because contact is null");
+        }
+        person.setContactInformation(null);
+        return personRepository.save(person);
     }
 }

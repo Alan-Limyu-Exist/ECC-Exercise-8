@@ -2,6 +2,7 @@ package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Address;
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Name;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,6 +75,7 @@ public class PersonServiceImplTest {
 
         this.role.setId(1);
         this.role.setName("Dev");
+        this.person.getRoles().add(this.role);
 
         ContactInformation contactInformation = new ContactInformation();
         contactInformation.setEmail("johndoe@gmail.com");
@@ -223,4 +226,117 @@ public class PersonServiceImplTest {
         }
     }
 
+    @Test
+    public void shouldAddPersonRole() {
+        Role newRole = new Role();
+        newRole.setId(2);
+        newRole.setName("new role");
+        when(roleRepository.findById(2L)).thenReturn(Optional.of(newRole));
+
+        assertFalse(person.getRoles().contains(newRole));
+
+        person = personServiceImpl.addRole(newRole, person);
+
+        assertTrue(person.getRoles().contains(newRole));
+    }
+
+    @Test
+    public void shouldNotAddPersonRole() {
+        Role newRole = new Role();
+        newRole.setId(2);
+        newRole.setName("new role");
+
+        assertFalse(person.getRoles().contains(newRole));
+
+        assertThrows(RoleNotFoundException.class,
+                () -> personServiceImpl.addRole(newRole, person));
+    }
+
+    @Test
+    public void shouldDeletePersonRole() {
+        assertTrue(person.getRoles().contains(role));
+
+        personServiceImpl.deleteRole(role, person);
+
+        assertFalse(person.getRoles().contains(role));
+    }
+
+    @Test
+    public void shouldNotDeletePersonRole() {
+        Role nonExistingRole = new Role();
+        nonExistingRole.setId(2);
+        nonExistingRole.setName("new role");
+
+        assertThrows(RoleNotFoundException.class,
+                () -> personServiceImpl
+                        .deleteRole(nonExistingRole, person));
+    }
+
+    @Test
+    public void shouldAddPersonContact() {
+        ContactInformation newContactInfo = new ContactInformation();
+        newContactInfo.setMobileNumber("+631234567890");
+        newContactInfo.setEmail("test@test.com");
+        newContactInfo.setLandline("021234567890");
+
+        person.setContactInformation(null);
+
+        person = personServiceImpl
+                .addContactInformation(newContactInfo, person);
+
+        assertEquals(person.getContactInformation().getMobileNumber(),
+                newContactInfo.getMobileNumber());
+        assertEquals(person.getContactInformation().getEmail(),
+                newContactInfo.getEmail());
+        assertEquals(person.getContactInformation().getLandline(),
+                newContactInfo.getLandline());
+    }
+
+    @Test
+    public void shouldUpdatePersonContact() {
+        ContactInformation newContactInfo = new ContactInformation();
+        newContactInfo.setMobileNumber("+631234567890");
+        newContactInfo.setEmail("test@test.com");
+        newContactInfo.setLandline("021234567890");
+
+        assertNotNull(person.getContactInformation());
+
+        person = personServiceImpl
+                .updateContactInformation(newContactInfo, person);
+
+        assertEquals(person.getContactInformation().getMobileNumber(),
+                newContactInfo.getMobileNumber());
+        assertEquals(person.getContactInformation().getEmail(),
+                newContactInfo.getEmail());
+        assertEquals(person.getContactInformation().getLandline(),
+                newContactInfo.getLandline());
+    }
+
+    @Test
+    public void shouldNotUpdatePersonContact() {
+        person.setContactInformation(null);
+        assertNull(person.getContactInformation());
+
+        assertThrows(NullPointerException.class,
+                () -> personServiceImpl
+                        .updateContactInformation(new ContactInformation(), person));
+    }
+
+    @Test
+    public void shouldDeletePersonContact() {
+        assertNotNull(person.getContactInformation());
+
+        personServiceImpl.deleteContactInformation(person);
+
+        assertNull(person.getContactInformation());
+    }
+
+    @Test
+    public void shouldNotDeletePersonContact() {
+        person.setContactInformation(null);
+        assertNull(person.getContactInformation());
+
+        assertThrows(NullPointerException.class,
+                () -> personServiceImpl.deleteContactInformation(person));
+    }
 }
