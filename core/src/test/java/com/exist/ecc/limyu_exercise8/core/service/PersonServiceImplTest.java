@@ -2,6 +2,7 @@ package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.ContactAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.PersonNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Address;
@@ -290,6 +291,20 @@ public class PersonServiceImplTest {
         assertThrows(RoleNotFoundException.class,
                 () -> personServiceImpl
                         .deleteRole(2, 1));
+
+        assertThrows(PersonNotFoundException.class,
+                () -> personServiceImpl
+                        .deleteRole(1, 2));
+
+        Role newRole = new Role();
+        newRole.setId(2);
+        newRole.setName("Admin 2");
+        when(roleRepository.findById(newRole.getId()))
+                .thenReturn(Optional.of(newRole));
+
+        assertThrows(RoleNotFoundException.class,
+                () -> personServiceImpl
+                        .deleteRole(2, 1));
     }
 
     @Test
@@ -302,7 +317,7 @@ public class PersonServiceImplTest {
         person.setContactInformation(null);
 
         person = personServiceImpl
-                .addContactInformation(newContactInfo, person);
+                .addContactInformation(newContactInfo, 1);
 
         assertEquals(person.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
@@ -310,6 +325,23 @@ public class PersonServiceImplTest {
                 newContactInfo.getEmail());
         assertEquals(person.getContactInformation().getLandline(),
                 newContactInfo.getLandline());
+    }
+
+    @Test
+    public void shouldNotAddPersonContact() {
+        assertThrows(PersonNotFoundException.class,
+                () -> personServiceImpl
+                        .addContactInformation(
+                                new ContactInformation(), 2
+                        )
+        );
+
+        assertThrows(ContactAlreadyExistsException.class,
+                () -> personServiceImpl
+                        .addContactInformation(
+                                new ContactInformation(), 1
+                        )
+        );
     }
 
     @Test
@@ -322,7 +354,7 @@ public class PersonServiceImplTest {
         assertNotNull(person.getContactInformation());
 
         person = personServiceImpl
-                .updateContactInformation(newContactInfo, person);
+                .updateContactInformation(newContactInfo, 1);
 
         assertEquals(person.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
@@ -340,7 +372,14 @@ public class PersonServiceImplTest {
         assertThrows(NullPointerException.class,
                 () -> personServiceImpl
                         .updateContactInformation(
-                                new ContactInformation(), person
+                                new ContactInformation(), 1
+                        )
+        );
+
+        assertThrows(PersonNotFoundException.class,
+                () -> personServiceImpl
+                        .updateContactInformation(
+                                new ContactInformation(), 2
                         )
         );
     }
@@ -349,7 +388,7 @@ public class PersonServiceImplTest {
     public void shouldDeletePersonContact() {
         assertNotNull(person.getContactInformation());
 
-        personServiceImpl.deleteContactInformation(person);
+        personServiceImpl.deleteContactInformation(1);
 
         assertNull(person.getContactInformation());
     }
@@ -360,6 +399,9 @@ public class PersonServiceImplTest {
         assertNull(person.getContactInformation());
 
         assertThrows(NullPointerException.class,
-                () -> personServiceImpl.deleteContactInformation(person));
+                () -> personServiceImpl.deleteContactInformation(1));
+
+        assertThrows(PersonNotFoundException.class,
+                () -> personServiceImpl.deleteContactInformation(2));
     }
 }

@@ -35,7 +35,13 @@ public interface PersonService {
 
     Person addContactInformation(ContactInformation contactInformation, Person person);
 
+    Person addContactInformation(ContactInformation contactInformation, long id);
+
     Person updateContactInformation(ContactInformation contactInformation, Person person);
 
+    Person updateContactInformation(ContactInformation contactInformation, long id);
+
     Person deleteContactInformation(Person person);
+
+    Person deleteContactInformation(long id);
 }

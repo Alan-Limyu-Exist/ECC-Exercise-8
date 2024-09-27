@@ -1,6 +1,7 @@
 package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
+import com.exist.ecc.limyu_exercise8.core.exception.ContactAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.PersonNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
@@ -147,15 +148,28 @@ public class PersonServiceImpl implements PersonService {
 
         Person person = personRepository.findById(personId)
                 .orElseThrow(()
-                        -> new PersonNotFoundException("Person does not exist"));;
+                        -> new PersonNotFoundException("Person does not exist"));
 
         return this.deleteRole(role, person);
     }
 
     @Override
     public Person addContactInformation(ContactInformation contactInformation, Person person) {
+        if (person.getContactInformation() != null) {
+            throw new ContactAlreadyExistsException("Cannot add contact because contact is not empty");
+        }
+
         person.setContactInformation(contactInformation);
         return personRepository.save(person);
+    }
+
+    @Override
+    public Person addContactInformation(ContactInformation contactInformation, long id) {
+        Person person = personRepository.findById(id)
+                .orElseThrow(()
+                        -> new PersonNotFoundException("Person does not exist"));
+
+        return this.addContactInformation(contactInformation, person);
     }
 
     @Override
@@ -170,11 +184,29 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public Person updateContactInformation(ContactInformation contactInformation, long id) {
+        Person person = personRepository.findById(id)
+                .orElseThrow(()
+                        -> new PersonNotFoundException("Person does not exist"));
+
+        return this.updateContactInformation(contactInformation, person);
+    }
+
+    @Override
     public Person deleteContactInformation(Person person) {
         if (person.getContactInformation() == null) {
-            throw new NullPointerException("Cannot update contact because contact is null");
+            throw new NullPointerException("Cannot delete contact because contact is null");
         }
         person.setContactInformation(null);
         return personRepository.save(person);
+    }
+
+    @Override
+    public Person deleteContactInformation(long id) {
+        Person person = personRepository.findById(id)
+                .orElseThrow(()
+                        -> new PersonNotFoundException("Person does not exist"));
+
+        return this.deleteContactInformation(person);
     }
 }

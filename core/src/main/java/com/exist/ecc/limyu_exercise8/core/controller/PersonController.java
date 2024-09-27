@@ -1,5 +1,6 @@
 package com.exist.ecc.limyu_exercise8.core.controller;
 
+import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.service.PersonService;
@@ -59,5 +60,16 @@ public class PersonController {
     @DeleteMapping("/{personId}/role/{roleId}")
     public void deleteRole(@PathVariable long personId, @PathVariable long roleId) {
         personService.deleteRole(roleId, personId);
+    }
+
+    @PatchMapping("/{personId}/contact")
+    public void addContact(@PathVariable long personId,
+                           @Valid @RequestBody ContactInformation contactInformation) {
+        personService.addContactInformation(contactInformation, personId);
+    }
+
+    @DeleteMapping("/{personId}/contact")
+    public void deleteContact(@PathVariable long personId) {
+        personService.deleteContactInformation(personId);
     }
 }
