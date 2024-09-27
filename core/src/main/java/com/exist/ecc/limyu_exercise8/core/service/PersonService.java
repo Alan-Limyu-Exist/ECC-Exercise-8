@@ -31,6 +31,8 @@ public interface PersonService {
 
     Person deleteRole(Role role, Person person);
 
+    Person deleteRole(long roleId, long personId);
+
     Person addContactInformation(ContactInformation contactInformation, Person person);
 
     Person updateContactInformation(ContactInformation contactInformation, Person person);

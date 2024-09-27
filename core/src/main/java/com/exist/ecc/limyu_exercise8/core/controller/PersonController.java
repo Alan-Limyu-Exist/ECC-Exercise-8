@@ -51,8 +51,13 @@ public class PersonController {
         personService.deleteById(id);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/role/{id}")
     public Person addRole(@PathVariable long id, @Valid @RequestBody Role role) {
         return personService.addRole(role, id);
+    }
+
+    @DeleteMapping("/{personId}/role/{roleId}")
+    public void deleteRole(@PathVariable long personId, @PathVariable long roleId) {
+        personService.deleteRole(roleId, personId);
     }
 }

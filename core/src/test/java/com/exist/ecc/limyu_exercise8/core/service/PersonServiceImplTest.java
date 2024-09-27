@@ -280,20 +280,16 @@ public class PersonServiceImplTest {
     public void shouldDeletePersonRole() {
         assertTrue(person.getRoles().contains(role));
 
-        personServiceImpl.deleteRole(role, person);
+        personServiceImpl.deleteRole(1, 1);
 
         assertFalse(person.getRoles().contains(role));
     }
 
     @Test
     public void shouldNotDeletePersonRole() {
-        Role nonExistingRole = new Role();
-        nonExistingRole.setId(2);
-        nonExistingRole.setName("new role");
-
         assertThrows(RoleNotFoundException.class,
                 () -> personServiceImpl
-                        .deleteRole(nonExistingRole, person));
+                        .deleteRole(2, 1));
     }
 
     @Test

@@ -140,6 +140,19 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public Person deleteRole(long roleId, long personId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(()
+                        -> new RoleNotFoundException("Role does not exist"));
+
+        Person person = personRepository.findById(personId)
+                .orElseThrow(()
+                        -> new PersonNotFoundException("Person does not exist"));;
+
+        return this.deleteRole(role, person);
+    }
+
+    @Override
     public Person addContactInformation(ContactInformation contactInformation, Person person) {
         person.setContactInformation(contactInformation);
         return personRepository.save(person);
