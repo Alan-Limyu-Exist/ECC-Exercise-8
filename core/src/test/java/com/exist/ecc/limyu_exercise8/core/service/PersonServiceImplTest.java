@@ -28,10 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -56,7 +54,8 @@ public class PersonServiceImplTest {
     public void setUp() {
         this.personRepository = mock(PersonRepository.class);
         this.roleRepository = mock(RoleRepository.class);
-        this.personServiceImpl = new PersonServiceImpl(personRepository, roleRepository);
+        this.personServiceImpl =
+                new PersonServiceImpl(personRepository, roleRepository);
         this.person = new Person();
         this.role = new Role();
 
@@ -70,7 +69,8 @@ public class PersonServiceImplTest {
         this.person.setAddress(address);
 
         this.person.setGwa(1.0f);
-        this.person.setDateHired(LocalDateTime.parse("2022-01-01T00:00:00"));
+        this.person.setDateHired(LocalDateTime
+                                    .parse("2022-01-01T00:00:00"));
         this.person.setCurrentlyEmployed(false);
 
         this.role.setId(1);
@@ -86,7 +86,8 @@ public class PersonServiceImplTest {
         doAnswer(invocation -> person)
                 .when(personRepository).save(person);
 
-        when(roleRepository.findById(1L)).thenReturn(Optional.ofNullable(role));
+        when(roleRepository.findById(1L))
+                .thenReturn(Optional.ofNullable(role));
 
         List<Person> peopleList = new ArrayList<>();
         peopleList.add(person);
@@ -97,7 +98,9 @@ public class PersonServiceImplTest {
         newName1.setLastName("Cassano");
         newPerson1.setName(newName1);
         newPerson1.setGwa(2.0f);
-        newPerson1.setDateHired(LocalDateTime.parse("2022-01-01T00:00:00"));
+        newPerson1.setDateHired(
+                LocalDateTime.parse("2022-01-01T00:00:00")
+        );
         newPerson1.setId(2);
         peopleList.add(newPerson1);
 
@@ -107,7 +110,9 @@ public class PersonServiceImplTest {
         newName2.setLastName("Baek");
         newPerson2.setName(newName2);
         newPerson2.setGwa(3.0f);
-        newPerson1.setDateHired(LocalDateTime.parse("2022-01-01T00:00:01"));
+        newPerson1.setDateHired(
+                LocalDateTime.parse("2022-01-01T00:00:01")
+        );
         newPerson2.setId(2);
         peopleList.add(newPerson2);
 
@@ -117,7 +122,9 @@ public class PersonServiceImplTest {
         newName3.setLastName("Gu");
         newPerson3.setName(newName3);
         newPerson3.setGwa(4.0f);
-        newPerson1.setDateHired(LocalDateTime.parse("2024-01-01T00:00:00"));
+        newPerson1.setDateHired(
+                LocalDateTime.parse("2024-01-01T00:00:00")
+        );
         newPerson3.setId(2);
         peopleList.add(newPerson3);
 
@@ -145,7 +152,8 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldNotDeletePerson() {
-        assertThrows(NullPointerException.class, () -> personServiceImpl.delete(new Person()));
+        assertThrows(NullPointerException.class,
+                () -> personServiceImpl.delete(new Person()));
     }
 
     @Test
@@ -156,7 +164,8 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldNotDeletePersonById() {
-        assertThrows(NullPointerException.class, () -> personServiceImpl.deleteById(4L));
+        assertThrows(NullPointerException.class,
+                () -> personServiceImpl.deleteById(4L));
     }
 
     @Test
@@ -175,17 +184,22 @@ public class PersonServiceImplTest {
 
         newPerson.setRoles(Set.of(role));
 
-        Person updatedPerson = personServiceImpl.update(1, newPerson).orElse(null);
+        Person updatedPerson = personServiceImpl
+                .update(1, newPerson).orElse(null);
         assertNotNull(updatedPerson);
-        assertEquals(newPerson.getName().getFirstName(), updatedPerson.getName().getFirstName());
-        assertEquals(newPerson.getName().getLastName(), updatedPerson.getName().getLastName());
+        assertEquals(newPerson.getName().getFirstName(),
+                updatedPerson.getName().getFirstName());
+        assertEquals(newPerson.getName().getLastName(),
+                updatedPerson.getName().getLastName());
         assertEquals(newPerson.getGwa(), updatedPerson.getGwa());
+
         assertNotEquals(newPerson.getId(), updatedPerson.getId());
     }
 
     @Test
     public void shouldNotUpdatePerson() {
-        assertThrows(NullPointerException.class, () -> personServiceImpl.update(4L, person));
+        assertThrows(NullPointerException.class,
+                () -> personServiceImpl.update(4L, person));
     }
 
     @Test
@@ -201,7 +215,8 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldListPeopleByDateHired() {
-        List<Person> peopleByDateHired = personServiceImpl.getAllPeopleByDateHired();
+        List<Person> peopleByDateHired =
+                personServiceImpl.getAllPeopleByDateHired();
 
         LocalDateTime lastDateHired = LocalDateTime.MIN;
         for (Person currentPerson : peopleByDateHired) {
@@ -209,19 +224,25 @@ public class PersonServiceImplTest {
                 continue;
             }
 
-            assertTrue(currentPerson.getDateHired().isAfter(lastDateHired)
-                    || currentPerson.getDateHired().isEqual(lastDateHired));
+            assertTrue(currentPerson.getDateHired()
+                        .isAfter(lastDateHired)
+                    || currentPerson.getDateHired()
+                        .isEqual(lastDateHired));
             lastDateHired = currentPerson.getDateHired();
         }
     }
 
     @Test
     public void shouldListPeopleByLastName() {
-        List<Person> peopleByLastName = personServiceImpl.getAllPeopleByLastName();
+        List<Person> peopleByLastName =
+                personServiceImpl.getAllPeopleByLastName();
 
         String lastLastName = "";
         for (Person currentPerson : peopleByLastName) {
-            assertTrue(currentPerson.getName().getLastName().compareTo(lastLastName) >= 0);
+            assertTrue(currentPerson.getName()
+                    .getLastName()
+                    .compareTo(lastLastName) >= 0);
+
             lastLastName = currentPerson.getName().getLastName();
         }
     }
@@ -231,7 +252,9 @@ public class PersonServiceImplTest {
         Role newRole = new Role();
         newRole.setId(2);
         newRole.setName("new role");
-        when(roleRepository.findById(2L)).thenReturn(Optional.of(newRole));
+
+        when(roleRepository.findById(2L))
+                .thenReturn(Optional.of(newRole));
 
         assertFalse(person.getRoles().contains(newRole));
 
@@ -319,7 +342,10 @@ public class PersonServiceImplTest {
 
         assertThrows(NullPointerException.class,
                 () -> personServiceImpl
-                        .updateContactInformation(new ContactInformation(), person));
+                        .updateContactInformation(
+                                new ContactInformation(), person
+                        )
+        );
     }
 
     @Test
