@@ -27,6 +27,8 @@ public interface PersonService {
 
     Person addRole(Role role, Person person);
 
+    Person addRole(Role role, long id);
+
     Person deleteRole(Role role, Person person);
 
     Person addContactInformation(ContactInformation contactInformation, Person person);

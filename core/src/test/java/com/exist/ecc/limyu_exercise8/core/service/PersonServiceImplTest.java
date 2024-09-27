@@ -259,7 +259,7 @@ public class PersonServiceImplTest {
 
         assertFalse(person.getRoles().contains(newRole));
 
-        person = personServiceImpl.addRole(newRole, person);
+        person = personServiceImpl.addRole(newRole, person.getId());
 
         assertTrue(person.getRoles().contains(newRole));
     }
@@ -273,7 +273,7 @@ public class PersonServiceImplTest {
         assertFalse(person.getRoles().contains(newRole));
 
         assertThrows(RoleNotFoundException.class,
-                () -> personServiceImpl.addRole(newRole, person));
+                () -> personServiceImpl.addRole(newRole, person.getId()));
     }
 
     @Test

@@ -124,6 +124,13 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public Person addRole(Role role, long id) {
+        Person person = personRepository.findById(id).orElse(null);
+
+        return this.addRole(role, person);
+    }
+
+    @Override
     public Person deleteRole(Role role, Person person) {
         if (!person.getRoles().contains(role)) {
             throw new RoleNotFoundException("Person does not have role: " + role.getName());

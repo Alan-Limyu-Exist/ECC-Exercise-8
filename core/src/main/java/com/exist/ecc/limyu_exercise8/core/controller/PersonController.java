@@ -1,6 +1,7 @@
 package com.exist.ecc.limyu_exercise8.core.controller;
 
 import com.exist.ecc.limyu_exercise8.core.model.Person;
+import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.service.PersonService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,10 @@ public class PersonController {
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable long id) {
         personService.deleteById(id);
+    }
+
+    @PatchMapping("/{id}")
+    public Person addRole(@PathVariable long id, @Valid @RequestBody Role role) {
+        return personService.addRole(role, id);
     }
 }
