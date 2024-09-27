@@ -7,8 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({
 		"com.exist.ecc.limyu_exercise8.core",
-		"com.exist.ecc.limyu_exercise8.infra",
-		"com.exist.ecc.limyu_exercise8.app"
+		"com.exist.ecc.limyu_exercise8.infra"
 })
 public class LimyuExercise8Application {
 
