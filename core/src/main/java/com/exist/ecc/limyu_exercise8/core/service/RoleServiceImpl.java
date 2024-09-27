@@ -58,7 +58,14 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void delete(Role role) {
-        role = get(role.getId());
+        long roleId = role.getId();
+        String roleName = role.getName();
+        role = roleRepository.getByName(roleName);
+
+        if (role == null) {
+            role = get(roleId);
+        }
+
         roleRepository.delete(role);
     }
 

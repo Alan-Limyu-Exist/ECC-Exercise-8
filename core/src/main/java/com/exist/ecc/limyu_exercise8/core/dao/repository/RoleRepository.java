@@ -10,4 +10,11 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
         return this.findAll().stream()
                 .anyMatch(role -> role.getName().equals(name));
     }
+
+    default Role getByName(String name) {
+        return this.findAll().stream()
+                .filter(role -> role.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

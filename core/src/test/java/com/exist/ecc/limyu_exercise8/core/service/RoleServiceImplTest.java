@@ -98,6 +98,8 @@ public class RoleServiceImplTest {
 
     @Test
     public void shouldDeleteRole() {
+        when(roleRepository.getByName(role.getName())).thenReturn(role);
+
         roleServiceImpl.delete(role);
 
         verify(roleRepository).delete(role);
