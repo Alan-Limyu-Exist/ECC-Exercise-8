@@ -62,10 +62,16 @@ public class PersonController {
         personService.deleteRole(roleId, personId);
     }
 
-    @PatchMapping("/{personId}/contact")
-    public void addContact(@PathVariable long personId,
+    @PutMapping("/{personId}/contact")
+    public Person addContact(@PathVariable long personId,
                            @Valid @RequestBody ContactInformation contactInformation) {
-        personService.addContactInformation(contactInformation, personId);
+        return personService.addContactInformation(contactInformation, personId);
+    }
+
+    @PatchMapping("/{personId}/contact")
+    public Person updateContact(@PathVariable long personId,
+                           @Valid @RequestBody ContactInformation contactInformation) {
+        return personService.updateContactInformation(contactInformation, personId);
     }
 
     @DeleteMapping("/{personId}/contact")
