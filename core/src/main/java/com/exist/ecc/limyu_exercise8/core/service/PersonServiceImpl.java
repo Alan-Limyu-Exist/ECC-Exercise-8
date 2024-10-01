@@ -1,14 +1,13 @@
 package com.exist.ecc.limyu_exercise8.core.service;
 
+import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import com.exist.ecc.limyu_exercise8.core.exception.ContactAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.PersonNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
-import com.exist.ecc.limyu_exercise8.core.dao.repository.PersonRepository;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -23,10 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class PersonServiceImpl implements PersonService {
 
-    @Autowired
     private final PersonRepository personRepository;
 
-    @Autowired
     private final RoleRepository roleRepository;
 
     public PersonServiceImpl(PersonRepository personRepository, RoleRepository roleRepository) {

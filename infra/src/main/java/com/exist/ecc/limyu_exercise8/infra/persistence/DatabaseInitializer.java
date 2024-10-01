@@ -1,6 +1,5 @@
 package com.exist.ecc.limyu_exercise8.infra.persistence;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -14,11 +13,14 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    public DatabaseInitializer(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         runSqlScript("com/exist/ecc/limyu_exercise8/infra/buildtools/20240926_1.sql");
         runSqlScript("com/exist/ecc/limyu_exercise8/infra/buildtools/20240926_2.sql");
     }
@@ -36,8 +38,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             }
             jdbcTemplate.execute(sql.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error reading SQL file '" + scriptPath + "'\n" + e.getMessage());
         }
     }
-
 }

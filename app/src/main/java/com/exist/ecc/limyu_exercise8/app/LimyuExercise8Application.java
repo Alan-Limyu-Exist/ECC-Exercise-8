@@ -2,10 +2,8 @@ package com.exist.ecc.limyu_exercise8.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication
-@ComponentScan({
+@SpringBootApplication(scanBasePackages = {
 		"com.exist.ecc.limyu_exercise8.core",
 		"com.exist.ecc.limyu_exercise8.infra"
 })

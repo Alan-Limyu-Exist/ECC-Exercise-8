@@ -1,11 +1,10 @@
 package com.exist.ecc.limyu_exercise8.core.service;
 
+import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
-import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,12 +12,9 @@ import java.util.List;
 @Service
 public class RoleServiceImpl implements RoleService {
 
-    @Autowired
     private final RoleRepository roleRepository;
 
-    @Autowired
     private final EntityManager entityManager;
-
 
     public RoleServiceImpl(RoleRepository roleRepository, EntityManager entityManager) {
         this.roleRepository = roleRepository;
@@ -38,7 +34,7 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.save(role);
     }
 
-    private Role get(long id) {
+    public Role get(long id) {
         Role role = roleRepository.findById(id).orElse(null);
 
         if (role == null) {

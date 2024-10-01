@@ -1,7 +1,6 @@
 package com.exist.ecc.limyu_exercise8.infra.persistence;
 
 import jakarta.persistence.EntityManagerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +18,12 @@ import java.util.Map;
 @EntityScan(basePackages = "com.exist.ecc.limyu_exercise8.core.model")
 @EnableJpaRepositories(basePackages = "com.exist.ecc.limyu_exercise8.core.dao.repository")
 public class JpaConfig {
-    @Autowired
-    private DataSource dataSource;
+
+    private final DataSource dataSource;
+
+    public JpaConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder) {
