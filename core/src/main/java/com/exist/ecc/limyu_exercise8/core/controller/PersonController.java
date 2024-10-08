@@ -1,81 +1,89 @@
 package com.exist.ecc.limyu_exercise8.core.controller;
 
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
-import com.exist.ecc.limyu_exercise8.core.model.Person;
+import com.exist.ecc.limyu_exercise8.core.model.dto.PersonDto;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.service.PersonService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/person")
+@RequestMapping("/api/v1/people")
 public class PersonController {
 
     @Autowired
     private PersonService personService;
 
     @GetMapping
-    public List<Person> getAll(
+    public ResponseEntity<List<PersonDto>> getAll(
             @RequestParam(value = "sortBy", required = false) String sortBy) {
+        List<PersonDto> people;
         if (sortBy == null) {
-            return personService.getAllPeople();
+            people = personService.getAllPeople();
+        } else {
+            people = switch (sortBy) {
+                case "gwa" -> personService.getAllPeopleByGwa();
+                case "lastName" -> personService.getAllPeopleByLastName();
+                case "dateHired" -> personService.getAllPeopleByDateHired();
+                default -> personService.getAllPeople();
+            };
         }
-
-        return switch (sortBy) {
-            case "gwa" -> personService.getAllPeopleByGwa();
-            case "lastName" -> personService.getAllPeopleByLastName();
-            case "dateHired" -> personService.getAllPeopleByDateHired();
-            default -> personService.getAllPeople();
-        };
+        return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
     @PostMapping
-    public Person create(@Valid @RequestBody Person person) {
-        return personService.save(person);
+    public ResponseEntity<PersonDto> create(@Valid @RequestBody PersonDto person) {
+        return new ResponseEntity<>(personService.save(person), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public Person update(@PathVariable long id, @Valid @RequestBody Person person) {
-        return personService.update(id, person);
+    public ResponseEntity<PersonDto> update(@PathVariable long id, @Valid @RequestBody PersonDto person) {
+        return new ResponseEntity<>(personService.update(id, person), HttpStatus.OK);
     }
 
     @DeleteMapping
-    public void delete(@Valid @RequestBody Person person) {
+    public ResponseEntity<PersonDto> delete(@Valid @RequestBody PersonDto person) {
         personService.delete(person);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable long id) {
         personService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/{id}/role")
-    public Person addRole(@PathVariable long id, @Valid @RequestBody Role role) {
-        return personService.addRole(role, id);
+    @PatchMapping("/{id}/roles")
+    public ResponseEntity<PersonDto> addRole(@PathVariable long id, @Valid @RequestBody Role role) {
+        return new ResponseEntity<>(personService.addRole(role, id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{personId}/role/{roleId}")
-    public void deleteRole(@PathVariable long personId, @PathVariable long roleId) {
+    @DeleteMapping("/{personId}/roles/{roleId}")
+    public ResponseEntity<Void> deleteRole(@PathVariable long personId, @PathVariable long roleId) {
         personService.deleteRole(roleId, personId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/{personId}/contact")
-    public Person addContact(@PathVariable long personId,
+    @PostMapping("/{personId}/contacts")
+    public ResponseEntity<PersonDto> addContact(@PathVariable long personId,
                            @Valid @RequestBody ContactInformation contactInformation) {
-        return personService.addContactInformation(contactInformation, personId);
+        return new ResponseEntity<>(personService.addContactInformation(contactInformation, personId), HttpStatus.OK);
     }
 
-    @PatchMapping("/{personId}/contact")
-    public Person updateContact(@PathVariable long personId,
+    @PatchMapping("/{personId}/contacts")
+    public ResponseEntity<PersonDto> updateContact(@PathVariable long personId,
                            @Valid @RequestBody ContactInformation contactInformation) {
-        return personService.updateContactInformation(contactInformation, personId);
+        return new ResponseEntity<>(personService.updateContactInformation(contactInformation, personId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{personId}/contact")
-    public void deleteContact(@PathVariable long personId) {
+    @DeleteMapping("/{personId}/contacts")
+    public ResponseEntity<Void> deleteContact(@PathVariable long personId) {
         personService.deleteContactInformation(personId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

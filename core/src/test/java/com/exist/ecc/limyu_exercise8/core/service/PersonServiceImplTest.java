@@ -10,6 +10,7 @@ import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Name;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
+import com.exist.ecc.limyu_exercise8.core.model.dto.PersonDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,12 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 public class PersonServiceImplTest {
 
+    @Spy
     @InjectMocks
     private PersonService personServiceImpl;
 
@@ -45,6 +49,9 @@ public class PersonServiceImplTest {
 
     @Mock
     private RoleRepository roleRepository;
+
+    @Spy
+    private PersonDto personDto;
 
     @Spy
     private Person person;
@@ -57,31 +64,52 @@ public class PersonServiceImplTest {
         this.personRepository = mock(PersonRepository.class);
         this.roleRepository = mock(RoleRepository.class);
         this.personServiceImpl =
-                new PersonServiceImpl(personRepository, roleRepository);
-        this.person = new Person();
+                spy(new PersonServiceImpl(personRepository, roleRepository));
         this.role = new Role();
+        this.role.setId(1);
+        this.role.setName("Dev");
+
+        this.personDto = new PersonDto();
 
         Name name = new Name();
         name.setFirstName("John");
         name.setLastName("Doe");
-        this.person.setId(1);
-        this.person.setName(name);
+        this.personDto.setId(1);
+        this.personDto.setName(name);
 
         Address address = new Address();
-        this.person.setAddress(address);
+        this.personDto.setAddress(address);
+
+        this.personDto.setGwa(1.0f);
+        this.personDto.setDateHired(LocalDateTime
+                .parse("2022-01-01T00:00:00"));
+        this.personDto.setCurrentlyEmployed(false);
+        this.personDto.getRoles().add(this.role);
+
+        ContactInformation contactInformation = new ContactInformation();
+        contactInformation.setEmail("johndoe@gmail.com");
+        this.personDto.setContactInformation(contactInformation);
+
+        this.person = new Person();
+        this.person.setId(1);
+
+        Name name2 = new Name();
+        name2.setFirstName("John");
+        name2.setLastName("Doe");
+        this.person.setName(name2);
+
+        Address address2 = new Address();
+        this.person.setAddress(address2);
 
         this.person.setGwa(1.0f);
         this.person.setDateHired(LocalDateTime
                                     .parse("2022-01-01T00:00:00"));
         this.person.setCurrentlyEmployed(false);
-
-        this.role.setId(1);
-        this.role.setName("Dev");
         this.person.getRoles().add(this.role);
 
-        ContactInformation contactInformation = new ContactInformation();
-        contactInformation.setEmail("johndoe@gmail.com");
-        this.person.setContactInformation(contactInformation);
+        ContactInformation contactInformation2 = new ContactInformation();
+        contactInformation2.setEmail("johndoe@gmail.com");
+        this.person.setContactInformation(contactInformation2);
 
         doAnswer(invocation -> Optional.ofNullable(person))
                 .when(personRepository).findById(person.getId());
@@ -132,11 +160,13 @@ public class PersonServiceImplTest {
 
         when(personRepository.findAll()).thenReturn(peopleList);
 
+        doReturn(person).when(personServiceImpl).fromDto(personDto);
+        doReturn(personDto).when(personServiceImpl).toDto(person);
     }
 
     @Test
     public void shouldSave() {
-        personServiceImpl.save(person);
+        personServiceImpl.save(personDto);
         verify(personRepository).save(person);
     }
 
@@ -148,14 +178,14 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldDeletePerson() {
-        personServiceImpl.delete(person);
+        personServiceImpl.delete(personDto);
         verify(personRepository).delete(person);
     }
 
     @Test
     public void shouldNotDeletePerson() {
         assertThrows(PersonNotFoundException.class,
-                () -> personServiceImpl.delete(new Person()));
+                () -> personServiceImpl.delete(new PersonDto()));
     }
 
     @Test
@@ -186,8 +216,8 @@ public class PersonServiceImplTest {
 
         newPerson.setRoles(Set.of(role));
 
-        Person updatedPerson = personServiceImpl
-                .update(1, newPerson);
+        PersonDto updatedPerson = personServiceImpl
+                .update(1, this.personServiceImpl.toDto(newPerson));
         assertNotNull(updatedPerson);
         assertEquals(newPerson.getName().getFirstName(),
                 updatedPerson.getName().getFirstName());
@@ -201,15 +231,15 @@ public class PersonServiceImplTest {
     @Test
     public void shouldNotUpdatePerson() {
         assertThrows(PersonNotFoundException.class,
-                () -> personServiceImpl.update(4L, person));
+                () -> personServiceImpl.update(4L, personDto));
     }
 
     @Test
     public void shouldListPeopleByGwa() {
-        List<Person> peopleByGwa = personServiceImpl.getAllPeopleByGwa();
+        List<PersonDto> peopleByGwa = personServiceImpl.getAllPeopleByGwa();
 
         float lastGwa = 0;
-        for (Person currentPerson : peopleByGwa) {
+        for (PersonDto currentPerson : peopleByGwa) {
             assertTrue(currentPerson.getGwa() >= lastGwa);
             lastGwa = currentPerson.getGwa();
         }
@@ -217,11 +247,11 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldListPeopleByDateHired() {
-        List<Person> peopleByDateHired =
+        List<PersonDto> peopleByDateHired =
                 personServiceImpl.getAllPeopleByDateHired();
 
         LocalDateTime lastDateHired = LocalDateTime.MIN;
-        for (Person currentPerson : peopleByDateHired) {
+        for (PersonDto currentPerson : peopleByDateHired) {
             if(currentPerson.getDateHired() == null) {
                 continue;
             }
@@ -236,11 +266,11 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldListPeopleByLastName() {
-        List<Person> peopleByLastName =
+        List<PersonDto> peopleByLastName =
                 personServiceImpl.getAllPeopleByLastName();
 
         String lastLastName = "";
-        for (Person currentPerson : peopleByLastName) {
+        for (PersonDto currentPerson : peopleByLastName) {
             assertTrue(currentPerson.getName()
                     .getLastName()
                     .compareTo(lastLastName) >= 0);
@@ -258,11 +288,11 @@ public class PersonServiceImplTest {
         when(roleRepository.findById(2L))
                 .thenReturn(Optional.of(newRole));
 
-        assertFalse(person.getRoles().contains(newRole));
+        assertFalse(personDto.getRoles().contains(newRole));
 
-        person = personServiceImpl.addRole(newRole, person.getId());
+        personDto = personServiceImpl.addRole(newRole, personDto.getId());
 
-        assertTrue(person.getRoles().contains(newRole));
+        assertTrue(personDto.getRoles().contains(newRole));
     }
 
     @Test
@@ -281,9 +311,9 @@ public class PersonServiceImplTest {
     public void shouldDeletePersonRole() {
         assertTrue(person.getRoles().contains(role));
 
-        personServiceImpl.deleteRole(1, 1);
+        personDto = personServiceImpl.deleteRole(1, 1);
 
-        assertFalse(person.getRoles().contains(role));
+        assertFalse(personDto.getRoles().contains(role));
     }
 
     @Test
@@ -313,17 +343,17 @@ public class PersonServiceImplTest {
         newContactInfo.setMobileNumber("+631234567890");
         newContactInfo.setEmail("test@test.com");
         newContactInfo.setLandline("021234567890");
-
         person.setContactInformation(null);
+        personDto.setContactInformation(null);
 
-        person = personServiceImpl
+        personDto = personServiceImpl
                 .addContactInformation(newContactInfo, 1);
 
-        assertEquals(person.getContactInformation().getMobileNumber(),
+        assertEquals(personDto.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
-        assertEquals(person.getContactInformation().getEmail(),
+        assertEquals(personDto.getContactInformation().getEmail(),
                 newContactInfo.getEmail());
-        assertEquals(person.getContactInformation().getLandline(),
+        assertEquals(personDto.getContactInformation().getLandline(),
                 newContactInfo.getLandline());
     }
 
@@ -350,23 +380,25 @@ public class PersonServiceImplTest {
         newContactInfo.setMobileNumber("+631234567890");
         newContactInfo.setEmail("test@test.com");
         newContactInfo.setLandline("021234567890");
+        personDto.setContactInformation(newContactInfo);
 
-        assertNotNull(person.getContactInformation());
+        assertNotNull(personDto.getContactInformation());
 
-        person = personServiceImpl
+        personDto = personServiceImpl
                 .updateContactInformation(newContactInfo, 1);
 
-        assertEquals(person.getContactInformation().getMobileNumber(),
+        assertEquals(personDto.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
-        assertEquals(person.getContactInformation().getEmail(),
+        assertEquals(personDto.getContactInformation().getEmail(),
                 newContactInfo.getEmail());
-        assertEquals(person.getContactInformation().getLandline(),
+        assertEquals(personDto.getContactInformation().getLandline(),
                 newContactInfo.getLandline());
     }
 
     @Test
     public void shouldNotUpdatePersonContact() {
         person.setContactInformation(null);
+        personDto.setContactInformation(null);
         assertNull(person.getContactInformation());
 
         assertThrows(NullPointerException.class,
@@ -388,14 +420,15 @@ public class PersonServiceImplTest {
     public void shouldDeletePersonContact() {
         assertNotNull(person.getContactInformation());
 
-        personServiceImpl.deleteContactInformation(1);
+        personDto = personServiceImpl.deleteContactInformation(1);
 
-        assertNull(person.getContactInformation());
+        assertNull(personDto.getContactInformation());
     }
 
     @Test
     public void shouldNotDeletePersonContact() {
         person.setContactInformation(null);
+        personDto.setContactInformation(null);
         assertNull(person.getContactInformation());
 
         assertThrows(NullPointerException.class,

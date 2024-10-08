@@ -4,70 +4,100 @@ import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
-import jakarta.persistence.EntityManager;
+import com.exist.ecc.limyu_exercise8.core.model.dto.RoleDto;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
 
-    private final EntityManager entityManager;
-
-    public RoleServiceImpl(RoleRepository roleRepository, EntityManager entityManager) {
+    public RoleServiceImpl(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
-        this.entityManager = entityManager;
     }
 
     @Override
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
+    public List<RoleDto> getAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Role save(Role role) {
-        if (roleRepository.existsByName(role.getName())) {
-            throw new RoleAlreadyExistsException("Role '" + role.getName() + "' already exists in database");
+    @PreAuthorize("hasRole('ADMIN')")
+    public RoleDto save(RoleDto roleDto) {
+        if (roleRepository.existsByName(roleDto.getName())) {
+            throw new RoleAlreadyExistsException("Role '" + roleDto.getName() + "' already exists in database");
         }
-        return roleRepository.save(role);
+        return this.toDto(roleRepository.save(this.fromDto(roleDto)));
     }
 
-    public Role get(long id) {
-        Role role = roleRepository.findById(id).orElse(null);
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
+    public RoleDto get(long id) {
+        RoleDto roleDto = this.toDto(roleRepository.findById(id).orElse(null));
 
-        if (role == null) {
+        if (roleDto == null) {
             throw new RoleNotFoundException("Cannot find role");
         }
 
-        return role;
+        return roleDto;
     }
 
     @Override
-    public Role update(long id, Role role) {
-        Role updatedRole = get(id);
-        entityManager.detach(updatedRole);
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
+    public RoleDto update(long id, RoleDto role) {
+        RoleDto updatedRole = get(id);
         updatedRole.setName(role.getName());
         return this.save(updatedRole);
     }
 
     @Override
-    public void delete(Role role) {
-        long roleId = role.getId();
-        String roleName = role.getName();
-        role = roleRepository.getByName(roleName);
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
+    public void delete(RoleDto roleDto) {
+        long roleId = roleDto.getId();
+        String roleName = roleDto.getName();
+        roleDto = this.toDto(roleRepository.getByName(roleName));
 
-        if (role == null) {
-            role = get(roleId);
+        if (roleDto == null) {
+            roleDto = get(roleId);
         }
 
-        roleRepository.delete(role);
+        roleRepository.delete(fromDto(roleDto));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public void deleteById(long id) {
         get(id);
         roleRepository.deleteById(id);
+    }
+
+    @Override
+    public RoleDto toDto(Role role) {
+        if (role == null) {
+            return null;
+        }
+
+        return new RoleDto(
+                role.getId(),
+                role.getName()
+        );
+    }
+
+    @Override
+    public Role fromDto(RoleDto roleDto) {
+        if (roleDto == null) {
+            return null;
+        }
+
+        Role role = new Role();
+        role.setId(roleDto.getId());
+        role.setName(roleDto.getName());
+        return role;
     }
 }

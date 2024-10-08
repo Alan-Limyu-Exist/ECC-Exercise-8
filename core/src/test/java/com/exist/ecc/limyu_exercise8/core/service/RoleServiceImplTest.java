@@ -4,6 +4,7 @@ import com.exist.ecc.limyu_exercise8.core.dao.repository.RoleRepository;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
+import com.exist.ecc.limyu_exercise8.core.model.dto.RoleDto;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,34 +19,39 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RoleServiceImplTest {
 
+    @Spy
     @InjectMocks
     private RoleService roleServiceImpl;
 
     @Mock
     private RoleRepository roleRepository;
 
-    @Mock
-    private EntityManager entityManager;
-
     @Spy
     private Role role;
+
+    @Spy
+    private RoleDto roleDto;
 
     @BeforeEach
     public void setUp() {
         roleRepository = mock(RoleRepository.class);
-        entityManager = mock(EntityManager.class);
-        roleServiceImpl = new RoleServiceImpl(roleRepository,
-                entityManager);
+        roleServiceImpl = spy(new RoleServiceImpl(roleRepository));
 
         role = new Role();
         role.setId(1L);
         role.setName("Admin");
+
+        roleDto = new RoleDto();
+        roleDto.setId(1L);
+        roleDto.setName("Admin");
 
         doAnswer(invocation -> role)
                 .when(roleRepository)
@@ -53,6 +59,9 @@ public class RoleServiceImplTest {
 
         when(roleRepository.findById(1L))
                 .thenReturn(Optional.ofNullable(role));
+
+        doReturn(role).when(roleServiceImpl).fromDto(roleDto);
+        doReturn(roleDto).when(roleServiceImpl).toDto(role);
     }
 
     @Test
@@ -63,23 +72,23 @@ public class RoleServiceImplTest {
 
     @Test
     public void shouldAddRole() {
-        roleServiceImpl.save(role);
+        roleServiceImpl.save(roleDto);
     }
 
     @Test
     public void shouldNotAddRole() {
         when(roleRepository.existsByName("Admin")).thenReturn(true);
         assertThrows(RoleAlreadyExistsException.class,
-                () -> roleServiceImpl.save(role));
+                () -> roleServiceImpl.save(roleDto));
     }
 
     @Test
     public void shouldUpdateRole() {
-        Role newRole = new Role();
+        RoleDto newRole = new RoleDto();
         newRole.setId(2);
         newRole.setName("Admin 2");
 
-        Role updatedRole = roleServiceImpl.update(1L, newRole);
+        RoleDto updatedRole = roleServiceImpl.update(1L, newRole);
 
         assertEquals(newRole.getName(), updatedRole.getName());
         assertNotEquals(newRole.getId(), updatedRole.getId());
@@ -87,7 +96,7 @@ public class RoleServiceImplTest {
 
     @Test
     public void shouldNotUpdateRole() {
-        Role newRole = new Role();
+        RoleDto newRole = new RoleDto();
         newRole.setId(2);
         newRole.setName("Admin");
 
@@ -100,14 +109,14 @@ public class RoleServiceImplTest {
     public void shouldDeleteRole() {
         when(roleRepository.getByName(role.getName())).thenReturn(role);
 
-        roleServiceImpl.delete(role);
+        roleServiceImpl.delete(roleDto);
 
         verify(roleRepository).delete(role);
     }
 
     @Test
     public void shouldNotDeleteRole() {
-        Role newRole = new Role();
+        RoleDto newRole = new RoleDto();
         newRole.setId(2);
         newRole.setName("Admin 2");
 

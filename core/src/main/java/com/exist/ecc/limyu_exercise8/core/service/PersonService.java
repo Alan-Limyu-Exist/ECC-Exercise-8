@@ -2,6 +2,7 @@ package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
+import com.exist.ecc.limyu_exercise8.core.model.dto.PersonDto;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import org.springframework.stereotype.Service;
 
@@ -9,39 +10,43 @@ import java.util.List;
 
 @Service
 public interface PersonService {
-    List<Person> getAllPeople();
+    List<PersonDto> getAllPeople();
 
-    Person save(Person person);
+    PersonDto save(PersonDto personDto);
 
-    void delete(Person person);
+    void delete(PersonDto personDto);
 
-    Person update(long id, Person person);
+    PersonDto update(long id, PersonDto personDto);
 
     void deleteById(long id);
 
-    List<Person> getAllPeopleByGwa();
+    List<PersonDto> getAllPeopleByGwa();
 
-    List<Person> getAllPeopleByDateHired();
+    List<PersonDto> getAllPeopleByDateHired();
 
-    List<Person> getAllPeopleByLastName();
+    List<PersonDto> getAllPeopleByLastName();
 
-    Person addRole(Role role, Person person);
+    PersonDto addRole(Role role, PersonDto personDto);
 
-    Person addRole(Role role, long id);
+    PersonDto addRole(Role role, long id);
 
-    Person deleteRole(Role role, Person person);
+    PersonDto deleteRole(Role role, PersonDto personDto);
 
-    Person deleteRole(long roleId, long personId);
+    PersonDto deleteRole(long roleId, long personId);
 
-    Person addContactInformation(ContactInformation contactInformation, Person person);
+    PersonDto addContactInformation(ContactInformation contactInformation, PersonDto personDto);
 
-    Person addContactInformation(ContactInformation contactInformation, long id);
+    PersonDto addContactInformation(ContactInformation contactInformation, long id);
 
-    Person updateContactInformation(ContactInformation contactInformation, Person person);
+    PersonDto updateContactInformation(ContactInformation contactInformation, PersonDto personDto);
 
-    Person updateContactInformation(ContactInformation contactInformation, long id);
+    PersonDto updateContactInformation(ContactInformation contactInformation, long id);
 
-    Person deleteContactInformation(Person person);
+    PersonDto deleteContactInformation(PersonDto personDto);
 
-    Person deleteContactInformation(long id);
+    PersonDto deleteContactInformation(long id);
+
+    PersonDto toDto(Person person);
+
+    Person fromDto(PersonDto personDto);
 }
