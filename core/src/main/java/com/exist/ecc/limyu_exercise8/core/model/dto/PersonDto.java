@@ -41,6 +41,7 @@ public class PersonDto {
     private boolean currentlyEmployed;
 
     @Embedded
+    @Valid
     private ContactInformation contactInformation;
 
     private Set<Role> roles = new HashSet<>();
