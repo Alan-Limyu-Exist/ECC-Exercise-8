@@ -111,18 +111,15 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public List<PersonDto> getAllPeopleByDateHired() {
-        return personRepository.findAll().stream()
+        return personRepository.findAllPeopleByDateHired().stream()
                 .map(this::toDto)
-                .sorted(Comparator.comparing(PersonDto::getDateHired,
-                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public List<PersonDto> getAllPeopleByLastName() {
-        return personRepository.findAll().stream()
-                .sorted(Comparator.comparing(person -> person.getName().getLastName()))
+        return personRepository.findAllPeopleByLastName().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
