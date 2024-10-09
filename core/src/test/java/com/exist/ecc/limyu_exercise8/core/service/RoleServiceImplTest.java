@@ -5,7 +5,6 @@ import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.model.dto.RoleDto;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -49,15 +49,13 @@ public class RoleServiceImplTest {
         role.setId(1L);
         role.setName("Admin");
 
-        roleDto = new RoleDto();
-        roleDto.setId(1L);
-        roleDto.setName("Admin");
+        roleDto = this.roleServiceImpl.toDto(role);
 
         doAnswer(invocation -> role)
                 .when(roleRepository)
                 .save(any(Role.class));
 
-        when(roleRepository.findById(1L))
+        when(roleRepository.findByUuid(role.getUuid()))
                 .thenReturn(Optional.ofNullable(role));
 
         doReturn(role).when(roleServiceImpl).fromDto(roleDto);
@@ -88,7 +86,7 @@ public class RoleServiceImplTest {
         newRole.setId(2);
         newRole.setName("Admin 2");
 
-        RoleDto updatedRole = roleServiceImpl.update(1L, newRole);
+        RoleDto updatedRole = roleServiceImpl.update(role.getUuid(), newRole);
 
         assertEquals(newRole.getName(), updatedRole.getName());
         assertNotEquals(newRole.getId(), updatedRole.getId());
@@ -102,7 +100,7 @@ public class RoleServiceImplTest {
 
         when(roleRepository.existsByName("Admin")).thenReturn(true);
         assertThrows(RoleAlreadyExistsException.class,
-                () -> roleServiceImpl.update(1L, newRole));
+                () -> roleServiceImpl.update(role.getUuid(), newRole));
     }
 
     @Test
@@ -125,15 +123,15 @@ public class RoleServiceImplTest {
     }
 
     @Test
-    public void shouldDeleteRoleById() {
-        roleServiceImpl.deleteById(1L);
+    public void shouldDeleteRoleByUuid() {
+        roleServiceImpl.deleteByUuid(role.getUuid());
 
-        verify(roleRepository).deleteById(1L);
+        verify(roleRepository).delete(role);
     }
 
     @Test
-    public void shouldNotDeleteRoleById() {
+    public void shouldNotDeleteRoleByUuid() {
         assertThrows(RoleNotFoundException.class,
-                () -> roleServiceImpl.deleteById(2L));
+                () -> roleServiceImpl.deleteByUuid(UUID.randomUUID()));
     }
 }

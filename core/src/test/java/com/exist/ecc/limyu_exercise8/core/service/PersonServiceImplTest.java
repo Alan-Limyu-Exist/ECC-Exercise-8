@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -69,27 +70,6 @@ public class PersonServiceImplTest {
         this.role.setId(1);
         this.role.setName("Dev");
 
-        this.personDto = new PersonDto();
-
-        Name name = new Name();
-        name.setFirstName("John");
-        name.setLastName("Doe");
-        this.personDto.setId(1);
-        this.personDto.setName(name);
-
-        Address address = new Address();
-        this.personDto.setAddress(address);
-
-        this.personDto.setGwa(1.0f);
-        this.personDto.setDateHired(LocalDateTime
-                .parse("2022-01-01T00:00:00"));
-        this.personDto.setCurrentlyEmployed(false);
-        this.personDto.getRoles().add(this.role);
-
-        ContactInformation contactInformation = new ContactInformation();
-        contactInformation.setEmail("johndoe@gmail.com");
-        this.personDto.setContactInformation(contactInformation);
-
         this.person = new Person();
         this.person.setId(1);
 
@@ -103,7 +83,7 @@ public class PersonServiceImplTest {
 
         this.person.setGwa(1.0f);
         this.person.setDateHired(LocalDateTime
-                                    .parse("2022-01-01T00:00:00"));
+                .parse("2022-01-01T00:00:00"));
         this.person.setCurrentlyEmployed(false);
         this.person.getRoles().add(this.role);
 
@@ -111,12 +91,14 @@ public class PersonServiceImplTest {
         contactInformation2.setEmail("johndoe@gmail.com");
         this.person.setContactInformation(contactInformation2);
 
+        this.personDto = this.personServiceImpl.toDto(person);
+
         doAnswer(invocation -> Optional.ofNullable(person))
-                .when(personRepository).findById(person.getId());
+                .when(personRepository).findByUuid(person.getUuid());
         doAnswer(invocation -> person)
                 .when(personRepository).save(person);
 
-        when(roleRepository.findById(1L))
+        when(roleRepository.findByUuid(role.getUuid()))
                 .thenReturn(Optional.ofNullable(role));
 
         List<Person> peopleList = new ArrayList<>();
@@ -189,15 +171,15 @@ public class PersonServiceImplTest {
     }
 
     @Test
-    public void shouldDeletePersonById() {
-        personServiceImpl.deleteById(1L);
-        verify(personRepository).deleteById(1L);
+    public void shouldDeletePersonByUuid() {
+        personServiceImpl.deleteByUuid(person.getUuid());
+        verify(personRepository).delete(person);
     }
 
     @Test
-    public void shouldNotDeletePersonById() {
+    public void shouldNotDeletePersonByUuid() {
         assertThrows(PersonNotFoundException.class,
-                () -> personServiceImpl.deleteById(4L));
+                () -> personServiceImpl.deleteByUuid(UUID.randomUUID()));
     }
 
     @Test
@@ -217,7 +199,7 @@ public class PersonServiceImplTest {
         newPerson.setRoles(Set.of(role));
 
         PersonDto updatedPerson = personServiceImpl
-                .update(1, this.personServiceImpl.toDto(newPerson));
+                .update(person.getUuid(), this.personServiceImpl.toDto(newPerson));
         assertNotNull(updatedPerson);
         assertEquals(newPerson.getName().getFirstName(),
                 updatedPerson.getName().getFirstName());
@@ -231,7 +213,7 @@ public class PersonServiceImplTest {
     @Test
     public void shouldNotUpdatePerson() {
         assertThrows(PersonNotFoundException.class,
-                () -> personServiceImpl.update(4L, personDto));
+                () -> personServiceImpl.update(UUID.randomUUID(), personDto));
     }
 
     @Test
@@ -285,12 +267,12 @@ public class PersonServiceImplTest {
         newRole.setId(2);
         newRole.setName("new role");
 
-        when(roleRepository.findById(2L))
+        when(roleRepository.findByUuid(newRole.getUuid()))
                 .thenReturn(Optional.of(newRole));
 
         assertFalse(personDto.getRoles().contains(newRole));
 
-        personDto = personServiceImpl.addRole(newRole, personDto.getId());
+        personDto = personServiceImpl.addRole(newRole, personDto.getUuid());
 
         assertTrue(personDto.getRoles().contains(newRole));
     }
@@ -304,14 +286,14 @@ public class PersonServiceImplTest {
         assertFalse(person.getRoles().contains(newRole));
 
         assertThrows(RoleNotFoundException.class,
-                () -> personServiceImpl.addRole(newRole, person.getId()));
+                () -> personServiceImpl.addRole(newRole, person.getUuid()));
     }
 
     @Test
     public void shouldDeletePersonRole() {
         assertTrue(person.getRoles().contains(role));
 
-        personDto = personServiceImpl.deleteRole(1, 1);
+        personDto = personServiceImpl.deleteRole(role.getUuid(), person.getUuid());
 
         assertFalse(personDto.getRoles().contains(role));
     }
@@ -320,21 +302,21 @@ public class PersonServiceImplTest {
     public void shouldNotDeletePersonRole() {
         assertThrows(RoleNotFoundException.class,
                 () -> personServiceImpl
-                        .deleteRole(2, 1));
+                        .deleteRole(UUID.randomUUID(), person.getUuid()));
 
         assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl
-                        .deleteRole(1, 2));
+                        .deleteRole(role.getUuid(), UUID.randomUUID()));
 
         Role newRole = new Role();
         newRole.setId(2);
         newRole.setName("Admin 2");
-        when(roleRepository.findById(newRole.getId()))
+        when(roleRepository.findByUuid(newRole.getUuid()))
                 .thenReturn(Optional.of(newRole));
 
         assertThrows(RoleNotFoundException.class,
                 () -> personServiceImpl
-                        .deleteRole(2, 1));
+                        .deleteRole(newRole.getUuid(), person.getUuid()));
     }
 
     @Test
@@ -347,7 +329,7 @@ public class PersonServiceImplTest {
         personDto.setContactInformation(null);
 
         personDto = personServiceImpl
-                .addContactInformation(newContactInfo, 1);
+                .addContactInformation(newContactInfo, person.getUuid());
 
         assertEquals(personDto.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
@@ -362,14 +344,14 @@ public class PersonServiceImplTest {
         assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl
                         .addContactInformation(
-                                new ContactInformation(), 2
+                                new ContactInformation(), UUID.randomUUID()
                         )
         );
 
         assertThrows(ContactAlreadyExistsException.class,
                 () -> personServiceImpl
                         .addContactInformation(
-                                new ContactInformation(), 1
+                                new ContactInformation(), person.getUuid()
                         )
         );
     }
@@ -385,7 +367,7 @@ public class PersonServiceImplTest {
         assertNotNull(personDto.getContactInformation());
 
         personDto = personServiceImpl
-                .updateContactInformation(newContactInfo, 1);
+                .updateContactInformation(newContactInfo, person.getUuid());
 
         assertEquals(personDto.getContactInformation().getMobileNumber(),
                 newContactInfo.getMobileNumber());
@@ -404,14 +386,14 @@ public class PersonServiceImplTest {
         assertThrows(NullPointerException.class,
                 () -> personServiceImpl
                         .updateContactInformation(
-                                new ContactInformation(), 1
+                                new ContactInformation(), person.getUuid()
                         )
         );
 
         assertThrows(PersonNotFoundException.class,
                 () -> personServiceImpl
                         .updateContactInformation(
-                                new ContactInformation(), 2
+                                new ContactInformation(), UUID.randomUUID()
                         )
         );
     }
@@ -420,7 +402,7 @@ public class PersonServiceImplTest {
     public void shouldDeletePersonContact() {
         assertNotNull(person.getContactInformation());
 
-        personDto = personServiceImpl.deleteContactInformation(1);
+        personDto = personServiceImpl.deleteContactInformation(person.getUuid());
 
         assertNull(personDto.getContactInformation());
     }
@@ -432,9 +414,9 @@ public class PersonServiceImplTest {
         assertNull(person.getContactInformation());
 
         assertThrows(NullPointerException.class,
-                () -> personServiceImpl.deleteContactInformation(1));
+                () -> personServiceImpl.deleteContactInformation(person.getUuid()));
 
         assertThrows(PersonNotFoundException.class,
-                () -> personServiceImpl.deleteContactInformation(2));
+                () -> personServiceImpl.deleteContactInformation(UUID.randomUUID()));
     }
 }

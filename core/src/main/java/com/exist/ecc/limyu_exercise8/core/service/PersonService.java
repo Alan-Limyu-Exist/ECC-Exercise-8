@@ -7,6 +7,7 @@ import com.exist.ecc.limyu_exercise8.core.model.Role;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public interface PersonService {
@@ -16,9 +17,9 @@ public interface PersonService {
 
     void delete(PersonDto personDto);
 
-    PersonDto update(long id, PersonDto personDto);
+    PersonDto update(UUID uuid, PersonDto personDto);
 
-    void deleteById(long id);
+    void deleteByUuid(UUID uuid);
 
     List<PersonDto> getAllPeopleByGwa();
 
@@ -28,23 +29,23 @@ public interface PersonService {
 
     PersonDto addRole(Role role, PersonDto personDto);
 
-    PersonDto addRole(Role role, long id);
+    PersonDto addRole(Role role, UUID uuid);
 
     PersonDto deleteRole(Role role, PersonDto personDto);
 
-    PersonDto deleteRole(long roleId, long personId);
+    PersonDto deleteRole(UUID roleUuid, UUID personUuid);
 
     PersonDto addContactInformation(ContactInformation contactInformation, PersonDto personDto);
 
-    PersonDto addContactInformation(ContactInformation contactInformation, long id);
+    PersonDto addContactInformation(ContactInformation contactInformation, UUID uuid);
 
     PersonDto updateContactInformation(ContactInformation contactInformation, PersonDto personDto);
 
-    PersonDto updateContactInformation(ContactInformation contactInformation, long id);
+    PersonDto updateContactInformation(ContactInformation contactInformation, UUID uuid);
 
     PersonDto deleteContactInformation(PersonDto personDto);
 
-    PersonDto deleteContactInformation(long id);
+    PersonDto deleteContactInformation(UUID uuid);
 
     PersonDto toDto(Person person);
 

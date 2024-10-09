@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +39,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public RoleDto get(long id) {
-        RoleDto roleDto = this.toDto(roleRepository.findById(id).orElse(null));
+    public RoleDto get(UUID uuid) {
+        RoleDto roleDto = this.toDto(roleRepository.findByUuid(uuid).orElse(null));
 
         if (roleDto == null) {
             throw new RoleNotFoundException("Cannot find role");
@@ -50,8 +51,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public RoleDto update(long id, RoleDto role) {
-        RoleDto updatedRole = get(id);
+    public RoleDto update(UUID uuid, RoleDto role) {
+        RoleDto updatedRole = get(uuid);
         updatedRole.setName(role.getName());
         return this.save(updatedRole);
     }
@@ -59,12 +60,12 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public void delete(RoleDto roleDto) {
-        long roleId = roleDto.getId();
+        UUID roleUuid = roleDto.getUuid();
         String roleName = roleDto.getName();
         roleDto = this.toDto(roleRepository.getByName(roleName));
 
         if (roleDto == null) {
-            roleDto = get(roleId);
+            roleDto = get(roleUuid);
         }
 
         roleRepository.delete(fromDto(roleDto));
@@ -72,9 +73,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public void deleteById(long id) {
-        get(id);
-        roleRepository.deleteById(id);
+    public void deleteByUuid(UUID uuid) {
+        roleRepository.delete(this.fromDto(get(uuid)));
     }
 
     @Override
@@ -85,6 +85,7 @@ public class RoleServiceImpl implements RoleService {
 
         return new RoleDto(
                 role.getId(),
+                role.getUuid(),
                 role.getName()
         );
     }

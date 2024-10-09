@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/roles")
@@ -36,9 +37,9 @@ public class RoleController {
                 .body(roleService.save(roleDto));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RoleDto> update(@PathVariable long id, @Valid @RequestBody RoleDto roleDto) {
-        return ResponseEntity.ok(roleService.update(id, roleDto));
+    @PutMapping("/{uuid}")
+    public ResponseEntity<RoleDto> update(@PathVariable UUID uuid, @Valid @RequestBody RoleDto roleDto) {
+        return ResponseEntity.ok(roleService.update(uuid, roleDto));
     }
 
     @DeleteMapping
@@ -47,9 +48,9 @@ public class RoleController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable long id) {
-        roleService.deleteById(id);
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<Void> deleteById(@PathVariable UUID uuid) {
+        roleService.deleteByUuid(uuid);
         return ResponseEntity.noContent().build();
     }
 }

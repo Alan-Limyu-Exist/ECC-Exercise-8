@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Validated
@@ -49,8 +50,8 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public PersonDto get(long id) {
-        PersonDto personDto = this.toDto(personRepository.findById(id).orElse(null));
+    public PersonDto get(UUID uuid) {
+        PersonDto personDto = this.toDto(personRepository.findByUuid(uuid).orElse(null));
 
         if (personDto == null) {
             throw new PersonNotFoundException("Cannot find person");
@@ -62,21 +63,20 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void delete(PersonDto personDto) {
-        personDto = get(personDto.getId());
+        personDto = get(personDto.getUuid());
         personRepository.delete(this.fromDto(personDto));
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteById(long id) {
-        get(id);
-        personRepository.deleteById(id);
+    public void deleteByUuid(UUID uuid) {
+        personRepository.delete(this.fromDto(get(uuid)));
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto update(long id, PersonDto personDto) {
-        PersonDto updatedPerson = get(id);
+    public PersonDto update(UUID uuid, PersonDto personDto) {
+        PersonDto updatedPerson = get(uuid);
 
         if (updatedPerson != null) {
             updatedPerson.setName(personDto.getName());
@@ -130,7 +130,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public PersonDto addRole(Role role, PersonDto personDto) {
-        Role roleInDatabase = roleRepository.findById(role.getId()).orElse(null);
+        Role roleInDatabase = roleRepository.findByUuid(role.getUuid()).orElse(null);
         if (roleInDatabase == null) {
             throw new RoleNotFoundException("Role '" + role.getName() + "' does not exist in database");
         }
@@ -140,8 +140,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto addRole(Role role, long id) {
-        PersonDto personDto = this.toDto(personRepository.findById(id).orElse(null));
+    public PersonDto addRole(Role role, UUID uuid) {
+        PersonDto personDto = this.toDto(personRepository.findByUuid(uuid).orElse(null));
 
         return this.addRole(role, personDto);
     }
@@ -158,12 +158,12 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto deleteRole(long roleId, long personId) {
-        Role role = roleRepository.findById(roleId)
+    public PersonDto deleteRole(UUID roleUuid, UUID personUuid) {
+        Role role = roleRepository.findByUuid(roleUuid)
                 .orElseThrow(()
                         -> new RoleNotFoundException("Role does not exist"));
 
-        PersonDto personDto = this.toDto(personRepository.findById(personId)
+        PersonDto personDto = this.toDto(personRepository.findByUuid(personUuid)
                 .orElseThrow(()
                         -> new PersonNotFoundException("Person does not exist")));
 
@@ -183,8 +183,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto addContactInformation(ContactInformation contactInformation, long id) {
-        PersonDto personDto = this.toDto(personRepository.findById(id)
+    public PersonDto addContactInformation(ContactInformation contactInformation, UUID uuid) {
+        PersonDto personDto = this.toDto(personRepository.findByUuid(uuid)
                 .orElseThrow(()
                         -> new PersonNotFoundException("Person does not exist")));
 
@@ -205,8 +205,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto updateContactInformation(ContactInformation contactInformation, long id) {
-        PersonDto personDto = this.toDto(personRepository.findById(id)
+    public PersonDto updateContactInformation(ContactInformation contactInformation, UUID uuid) {
+        PersonDto personDto = this.toDto(personRepository.findByUuid(uuid)
                 .orElseThrow(()
                         -> new PersonNotFoundException("Person does not exist")));
 
@@ -225,8 +225,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PersonDto deleteContactInformation(long id) {
-        PersonDto personDto = this.toDto(personRepository.findById(id)
+    public PersonDto deleteContactInformation(UUID uuid) {
+        PersonDto personDto = this.toDto(personRepository.findByUuid(uuid)
                 .orElseThrow(()
                         -> new PersonNotFoundException("Person does not exist")));
 
@@ -241,6 +241,7 @@ public class PersonServiceImpl implements PersonService {
 
         return new PersonDto(
                 person.getId(),
+                person.getUuid(),
                 person.getName(),
                 person.getAddress(),
                 person.getGwa(),
@@ -259,6 +260,11 @@ public class PersonServiceImpl implements PersonService {
 
         Person person = new Person();
         person.setId(personDto.getId());
+
+        if (personDto.getUuid() != null) {
+            person.setUuid(personDto.getUuid());
+        }
+
         person.setName(personDto.getName());
         person.setAddress(personDto.getAddress());
         person.setGwa(personDto.getGwa());
