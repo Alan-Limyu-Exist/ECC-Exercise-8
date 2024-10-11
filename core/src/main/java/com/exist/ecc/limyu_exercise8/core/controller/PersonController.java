@@ -6,6 +6,8 @@ import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.service.PersonService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +24,20 @@ public class PersonController {
 
     @GetMapping
     public ResponseEntity<List<PersonDto>> getAll(
-            @RequestParam(value = "sortBy", required = false) String sortBy) {
+            @RequestParam(value = "sortBy", required = false) String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         List<PersonDto> people;
+        Pageable pageable = PageRequest.of(page, size);
         if (sortBy == null) {
-            people = personService.getAllPeople();
+            people = personService.getAllPeople(pageable);
         } else {
             people = switch (sortBy) {
-                case "gwa" -> personService.getAllPeopleByGwa();
-                case "lastName" -> personService.getAllPeopleByLastName();
-                case "dateHired" -> personService.getAllPeopleByDateHired();
-                default -> personService.getAllPeople();
+                case "gwa" -> personService.getAllPeopleByGwa(pageable);
+                case "lastName" -> personService.getAllPeopleByLastName(pageable);
+                case "dateHired" -> personService.getAllPeopleByDateHired(pageable);
+                default -> personService.getAllPeople(pageable);
             };
         }
         return new ResponseEntity<>(people, HttpStatus.OK);

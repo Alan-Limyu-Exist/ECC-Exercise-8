@@ -4,6 +4,7 @@ import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
 import com.exist.ecc.limyu_exercise8.core.model.dto.PersonDto;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Service
 public interface PersonService {
-    List<PersonDto> getAllPeople();
+    List<PersonDto> getAllPeople(Pageable pageable);
 
     PersonDto save(PersonDto personDto);
 
@@ -21,11 +22,11 @@ public interface PersonService {
 
     void deleteByUuid(UUID uuid);
 
-    List<PersonDto> getAllPeopleByGwa();
+    List<PersonDto> getAllPeopleByGwa(Pageable pageable);
 
-    List<PersonDto> getAllPeopleByDateHired();
+    List<PersonDto> getAllPeopleByDateHired(Pageable pageable);
 
-    List<PersonDto> getAllPeopleByLastName();
+    List<PersonDto> getAllPeopleByLastName(Pageable pageable);
 
     PersonDto addRole(Role role, PersonDto personDto);
 

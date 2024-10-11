@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,14 +61,18 @@ public class RoleServiceImplTest {
         when(roleRepository.findByUuid(role.getUuid()))
                 .thenReturn(Optional.ofNullable(role));
 
+        when(roleRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Collections.singletonList(role)));
+
         doReturn(role).when(roleServiceImpl).fromDto(roleDto);
         doReturn(roleDto).when(roleServiceImpl).toDto(role);
     }
 
     @Test
     public void shouldGetAllPeople() {
-        roleServiceImpl.getAllRoles();
-        verify(roleRepository).findAll();
+        Pageable pageable = Pageable.unpaged();
+        roleServiceImpl.getAllRoles(pageable);
+        verify(roleRepository).findAll(pageable);
     }
 
     @Test

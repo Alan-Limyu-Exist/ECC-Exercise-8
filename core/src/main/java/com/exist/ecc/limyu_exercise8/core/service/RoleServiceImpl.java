@@ -5,6 +5,7 @@ import com.exist.ecc.limyu_exercise8.core.exception.RoleAlreadyExistsException;
 import com.exist.ecc.limyu_exercise8.core.exception.RoleNotFoundException;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.model.dto.RoleDto;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public List<RoleDto> getAllRoles() {
-        return roleRepository.findAll().stream()
+    public List<RoleDto> getAllRoles(Pageable pageable) {
+        return roleRepository.findAll(pageable).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }

@@ -2,12 +2,13 @@ package com.exist.ecc.limyu_exercise8.core.service;
 
 import com.exist.ecc.limyu_exercise8.core.model.Role;
 import com.exist.ecc.limyu_exercise8.core.model.dto.RoleDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface RoleService {
-    List<RoleDto> getAllRoles();
+    List<RoleDto> getAllRoles(Pageable pageable);
 
     RoleDto save(RoleDto roleDto);
 

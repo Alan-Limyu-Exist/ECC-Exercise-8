@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -141,6 +144,8 @@ public class PersonServiceImplTest {
         peopleList.add(newPerson3);
 
         when(personRepository.findAll()).thenReturn(peopleList);
+        when(personRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(peopleList));
 
         doReturn(person).when(personServiceImpl).fromDto(personDto);
         doReturn(personDto).when(personServiceImpl).toDto(person);
@@ -154,8 +159,9 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldGetAllPeople() {
-        personServiceImpl.getAllPeople();
-        verify(personRepository).findAll();
+        Pageable pageable = Pageable.unpaged();
+        personServiceImpl.getAllPeople(pageable);
+        verify(personRepository).findAll(pageable);
     }
 
     @Test
@@ -218,7 +224,8 @@ public class PersonServiceImplTest {
 
     @Test
     public void shouldListPeopleByGwa() {
-        List<PersonDto> peopleByGwa = personServiceImpl.getAllPeopleByGwa();
+        List<PersonDto> peopleByGwa = personServiceImpl
+                .getAllPeopleByGwa(Pageable.unpaged());
 
         float lastGwa = 0;
         for (PersonDto currentPerson : peopleByGwa) {
@@ -230,7 +237,7 @@ public class PersonServiceImplTest {
     @Test
     public void shouldListPeopleByDateHired() {
         List<PersonDto> peopleByDateHired =
-                personServiceImpl.getAllPeopleByDateHired();
+                personServiceImpl.getAllPeopleByDateHired(Pageable.unpaged());
 
         LocalDateTime lastDateHired = LocalDateTime.MIN;
         for (PersonDto currentPerson : peopleByDateHired) {
@@ -249,7 +256,7 @@ public class PersonServiceImplTest {
     @Test
     public void shouldListPeopleByLastName() {
         List<PersonDto> peopleByLastName =
-                personServiceImpl.getAllPeopleByLastName();
+                personServiceImpl.getAllPeopleByLastName(Pageable.unpaged());
 
         String lastLastName = "";
         for (PersonDto currentPerson : peopleByLastName) {

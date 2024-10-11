@@ -9,6 +9,7 @@ import com.exist.ecc.limyu_exercise8.core.model.ContactInformation;
 import com.exist.ecc.limyu_exercise8.core.model.Person;
 import com.exist.ecc.limyu_exercise8.core.model.dto.PersonDto;
 import com.exist.ecc.limyu_exercise8.core.model.Role;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -37,8 +38,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public List<PersonDto> getAllPeople() {
-        return personRepository.findAll().stream()
+    public List<PersonDto> getAllPeople(Pageable pageable) {
+        return personRepository.findAll(pageable).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -101,8 +102,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public List<PersonDto> getAllPeopleByGwa() {
-        return personRepository.findAll().stream()
+    public List<PersonDto> getAllPeopleByGwa(Pageable pageable) {
+        return personRepository.findAll(pageable).stream()
                 .map(this::toDto)
                 .sorted(Comparator.comparing(PersonDto::getGwa))
                 .collect(Collectors.toList());
@@ -110,16 +111,16 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public List<PersonDto> getAllPeopleByDateHired() {
-        return personRepository.findAllPeopleByDateHired().stream()
+    public List<PersonDto> getAllPeopleByDateHired(Pageable pageable) {
+        return personRepository.findAllPeopleByDateHired(pageable).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public List<PersonDto> getAllPeopleByLastName() {
-        return personRepository.findAllPeopleByLastName().stream()
+    public List<PersonDto> getAllPeopleByLastName(Pageable pageable) {
+        return personRepository.findAllPeopleByLastName(pageable).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
